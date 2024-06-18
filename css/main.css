@@ -1,0 +1,332 @@
+:root {
+	--number-of-skill-trees: 15;
+	
+	--tree-width: 100px;
+	--tree-padding: 0.25rem;
+	--tree-gap: 0.5rem;
+	
+	--card-width: 250px;
+	--card-padding: 0.3rem;
+}
+
+body {
+	background-color: rgba(45, 45, 0);
+	background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url(../img/background.jpg);
+	background-position: center;
+	background-size: cover;
+	color: #FFF;
+	
+	cursor: url('../img/cursor.png'), auto;
+}
+
+div.builder--skill_trees {
+	display: flex;
+	flex-wrap: nowrap;
+	flex-direction: row;
+	align-content: center;
+	justify-content: center;
+	align-items: normal;
+	gap: 0.5rem;
+
+	background-color: rgba(0,0,0,0.5);
+	overflow-x: auto;
+	text-align: center;
+}
+
+div.skill_trees--opt {
+	border: 1px solid black;
+	padding: 0.25rem;
+	width: 100px;
+}
+
+@media screen and (width < calc((15 * (100px + 0.25rem)) + (14 * 0.5rem))) {
+	div.builder--skill_trees {
+		justify-content: normal;
+	}
+}
+
+div.skill_trees--opt:hover {
+	background-color: rgba(255, 255, 255, 0.5);
+}
+
+div.skill_trees--opt.active {
+	background-color: rgba(0, 255, 0, 0.3);
+}
+
+div.builder--tree:not(.active) {
+	display: none;
+}
+
+div.builder--tree--name {
+	font-weight: bold;
+	font-size: 3rem;
+	text-align: center;
+}
+
+img.icon {
+	margin: 3px;
+	width: 18px;
+	height: 18px;
+}
+
+div.builder--skill {
+	position: relative;
+	margin: 1rem 1rem;
+}
+
+div.builder--skill:hover {
+	box-shadow: inset 0 0 10px #FFF;
+}
+
+div.builder--skill:hover div.builder--skill--card {
+	visibility: visible;
+}
+
+div.builder--skill div.builder--skill--img:after {
+	content: '';
+
+	--pos-off-x: -15px;
+	--pos-off-y: -20px;
+	--width: calc(100% - 2 * var(--pos-off-x));
+	--height: calc(100% - 2 * var(--pos-off-y));
+
+	background-image: url(../img/skill_inactive.png);
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+
+	position: absolute;
+	width: var(--width);
+	height: var(--height);
+	z-index: 1;
+	left: var(--pos-off-x);
+	top: var(--pos-off-y);
+	display: inline-block;
+}
+
+div.builder--skill:hover div.builder--skill--img:after,
+div.builder--skill.selected:hover div.builder--skill--img:after {
+	background-image: url(../img/skill_inactive_hover.png);
+}
+
+div.builder--skill.selected div.builder--skill--img:after {
+	background-image: url(../img/skill_selected.png);
+}
+
+div.builder--skill.locked div.builder--skill--img:after {
+	background-image: url(../img/skill_locked.png);
+}
+
+div.builder--skill.locked:hover div.builder--skill--img:after {
+	background-image: url(../img/skill_locked_hover.png);
+}
+
+div.builder--skill.requires div.builder--skill--img:after {
+	background-image: url(../img/skill_requires.png);
+}
+
+div.builder--skill.requires:hover div.builder--skill--img:after {
+	background-image: url(../img/skill_requires_hover.png);
+}
+
+div.builder--skill--img {
+	height: 128px;
+	min-height: 128px;
+	max-height: 128px;
+}
+
+div.builder--skill--img > img {
+  width: 84px;
+  height: 128px;
+}
+
+div.builder--skill--card {
+	
+	visibility: hidden;
+	z-index: 2;
+	
+	background-color: rgba(0, 0, 0, 0.8);
+	padding: var(--card-padding) 0.8rem;
+
+	position: absolute;
+	top: 100%;
+	left: max(0px, 50%);
+	width: var(--card-width);
+	margin-left: calc(-1 * var(--card-width) / 2 - var(--card-padding) / 2);
+
+	display: grid;
+	align-content: normal;
+	justify-content: normal;
+	align-items: normal;
+	justify-items: center;
+	grid-template-rows: 2rem 1.5rem;
+	
+	min-height: 128px;
+}
+
+div.card--name {
+	font-size: 1.5rem;
+	font-weight: 900;
+}
+
+div.card--name svg {
+	width: 100%;
+	height: 2rem;
+	fill: white;
+}
+
+div.card--costs {
+	font-size: 1rem;
+	font-weight: 700;
+}
+
+div.card--costs,
+div.card--costs > div {
+	display: flex;
+}
+
+div.card--costs > div {
+	align-items: center;
+}
+
+div.card--cost_other {
+	border-right: 1px solid white;
+	padding-right: 3px;
+	margin-right: 2px;
+}
+
+div.builder--row {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-content: normal;
+	justify-content: center;
+	align-items: normal;
+	max-width: 80%;
+	margin: auto;
+}
+
+/* TOTALS */
+div.section.totals {
+	background-color: rgba(0, 0, 0, 0.5);
+	width: fit-content;
+	margin: 1rem auto;
+	padding: 0.1rem 0.5rem 1rem 0.5rem;
+	width: 40rem;
+	max-width: 40rem;
+	min-width: 40rem;
+}
+
+div.totals--header {
+	font-size: 3rem;
+	font-weight: 600;
+}
+
+div.row--header {
+	font-size: 1.5rem;
+	margin-right: .5rem;
+	width: 8rem;
+	text-align: right;
+}
+
+div.section.totals > div {
+	margin: 0.25rem 1rem;
+	justify-content: center;
+	border-bottom: 1px solid rgba(255,255,255,0.6);
+}
+
+div.totals--costs div {
+	display: flex;
+	align-items: center;
+}
+
+div.totals--header,
+div.totals--skills,
+div.totals--costs,
+div.totals--skill_bonuses {
+	margin: 0rem 0.25rem;
+	display: flex;
+	align-items: center;
+	font-weight: 900;
+}
+
+div.skill-bonuses.hidden {
+	display: none;
+}
+
+div.section.totals span {
+	font-weight: 400;
+	padding: 0.2rem;
+}
+
+div.totals--skill_bonuses {
+	flex-wrap: wrap;
+}
+
+div.totals--group--row {
+	width: 100%;
+	display: grid;
+	grid-template-columns: 120px 1fr;
+	
+	border-bottom: 1px solid rgba(255,255,255,0.6);
+}
+
+div.totals--row-header {
+	display: flex;
+	align-items: center;
+	
+	border-right: 1px solid rgba(255,255,255,0.6);
+}
+
+div.totals--row-content {
+	display: flex;
+	flex-wrap: wrap;
+	align-content: normal;
+	justify-content: normal;
+	align-items: center;
+	
+	margin-left: 0.3rem;
+}
+
+div.totals--row-content div {
+	display: flex;
+	flex-wrap: nowrap;
+	align-content: normal;
+	justify-content: normal;
+	align-items: center;
+	padding: 0 0.15rem;
+}
+
+/* TOOLS */
+div.section.tools {
+	display: flex;
+	justify-content: center;
+}
+
+div.tools-btn {
+	margin: 0.25rem;
+	padding: 0.5rem 1rem;
+	background-image: url(../img/tex_men_buttonGenericNormal.png);
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+}
+
+div.tools-btn:hover {
+	background-image: url(../img/tex_men_buttonGenericHover.png);
+}
+
+div.tools-btn.active {
+	background-image: url(../img/tex_men_buttonGenericHover.png);
+}
+
+/* FOOTER */
+div.section.footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 50px;
+	z-index: -2;
+	background-image: url(../img/background_footer.png);
+	opacity: 0.75;
+	background-position: center;
+}
