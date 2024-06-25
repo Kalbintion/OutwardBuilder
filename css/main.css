@@ -35,11 +35,15 @@ div.builder--skill_trees {
 
 div.skill_trees--opt {
 	border: 1px solid black;
-	padding: 0.25rem;
 	width: 100px;
 }
 
-@media screen and (width < calc((15 * (100px + 0.25rem)) + (14 * 0.5rem))) {
+div.skill_trees--icon img {
+	width: 50px;
+	height: 50px;
+}
+
+@media screen and (width < calc((16 * (100px + 0.25rem)) + (15 * 0.25rem))) {
 	div.builder--skill_trees {
 		justify-content: normal;
 	}
@@ -53,7 +57,8 @@ div.skill_trees--opt.active {
 	background-color: rgba(0, 255, 0, 0.3);
 }
 
-div.builder--tree:not(.active) {
+div.builder--tree:not(.active),
+div.builder--gear:not(.active) {
 	display: none;
 }
 
@@ -69,9 +74,70 @@ img.icon {
 	height: 18px;
 }
 
+/* BUILDER RAILS */
+div.builder--tree {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	grid-template-rows: repeat(6, 1fr);
+	grid-row-gap: 0.1rem;
+	
+	width: fit-content;
+	margin: 0 auto;
+}
+
+.rail-1 {
+	grid-area: 1 / 1 / 2 / 4;
+}
+
+.rail-2 {
+	grid-area: 2 / 1 / 3 / 4;
+}
+
+.rail-3 {
+	grid-area: 3 / 1 / 4 / 4;
+}
+
+.rail-4 {
+	grid-area: 4 / 1 / 5 / 4;
+}
+
+.rail-5 {
+	grid-area: 5 / 1 / 6 / 4;
+}
+
+.rail-6 {
+	grid-area: 6 / 1 / 7 / 4;
+}
+
+.col-all {
+	grid-area: 1 / 1 / 1 / 4;
+}
+
+.col-1 {
+	grid-area: 1 / 1 / 2 / 2;
+}
+
+.col-2 {
+	grid-area: 1 / 2 / 2 / 3;
+}
+
+.col-3 {
+	grid-area: 1 / 3 / 2 / 4;
+}
+
+.skill--group {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: center;
+	margin: 0rem 0.5rem;
+}
+
+/* BUILDER SKILLS */
 div.builder--skill {
 	position: relative;
-	margin: 1rem 1rem;
+	margin: 0.5rem;
 }
 
 div.builder--skill:hover {
@@ -82,67 +148,113 @@ div.builder--skill:hover div.builder--skill--card {
 	visibility: visible;
 }
 
-div.builder--skill div.builder--skill--img:after {
+div.builder--skill--img:after,
+div.builder--skill--img:before {
 	content: '';
+	
+	--icon-width: 50px;
+	--icon-height: var(--icon-width);
+	--width: 128px;
+	--height: var(--width); /* 1:1 aspect ratio */
 
-	--pos-off-x: -15px;
-	--pos-off-y: -20px;
-	--width: calc(100% - 2 * var(--pos-off-x));
-	--height: calc(100% - 2 * var(--pos-off-y));
+	--pos-off-x: calc(100% - (var(--width) / 2) - (var(--icon-width) / 2));
+	--pos-off-y: calc(100% - (var(--height) / 2) - (var(--icon-height) / 2));
 
-	background-image: url(../img/skill_inactive.png);
+	background-image: url(../img/treeUI/tex_men_treeUnboughtActive.png);
 	background-size: 100% 100%;
 	background-repeat: no-repeat;
 
 	position: absolute;
 	width: var(--width);
 	height: var(--height);
-	z-index: 1;
+	z-index: -1;
 	left: var(--pos-off-x);
 	top: var(--pos-off-y);
 	display: inline-block;
+	
+	pointer-events: none;
 }
 
-div.builder--skill:hover div.builder--skill--img:after,
-div.builder--skill.selected:hover div.builder--skill--img:after {
-	background-image: url(../img/skill_inactive_hover.png);
+div.builder--skill:not([data-cost-breakthrough="0"]):before {
+	content: '';
+	
+	background-image: url(../img/treeUI/tex_men_treeUnoughtChain.png);
+	
+	width: 345px;
+	height: 32px;
+	
+	position: absolute;
+	top: calc((50px / 2) - (32px / 2));
+	left: calc((0 - 1) * (345px / 2) + 25px);
 }
 
 div.builder--skill.selected div.builder--skill--img:after {
-	background-image: url(../img/skill_selected.png);
+	z-index: 1;
+	background-image: url(../img/treeUI/tex_men_treeBoughtOverlay.png);
 }
 
-div.builder--skill.locked div.builder--skill--img:after {
-	background-image: url(../img/skill_locked.png);
+div.builder--skill[data-cooldown="-1"] div.builder--skill--img:after {
+	background-image: url(../img/treeUI/tex_men_treeUnboughtPassive.png);
 }
 
-div.builder--skill.locked:hover div.builder--skill--img:after {
-	background-image: url(../img/skill_locked_hover.png);
+div.builder--skill.selected[data-cooldown="-1"] div.builder--skill--img:after {
+	--width: 50px;
+	--height: 50px;
+	z-index: -1;
+	background-image: url(../img/treeUI/tex_men_treeBoughtPassive.png);
 }
 
 div.builder--skill.requires div.builder--skill--img:after {
-	background-image: url(../img/skill_requires.png);
+	--width: 50px;
+	--height: 50px;
+	z-index: 1;
+	background-image: url(../img/treeUI/tex_men_treeRequires.png);
 }
 
-div.builder--skill.requires:hover div.builder--skill--img:after {
-	background-image: url(../img/skill_requires_hover.png);
+div.builder--skill.selected[data-cooldown="-1"] div.builder--skill--img:before {
+	z-index: 1;
+	background-image: url(../img/treeUI/tex_men_treeBoughtOverlay.png);
+}
+
+div.builder--skill:not([data-cost-breakthrough="0"]) div.builder--skill--img:after {
+	background-image: url(../img/treeUI/tex_men_treeUnboughtBreakthrough.png);
+}
+
+div.builder--skill.selected:not([data-cost-breakthrough="0"]) div.builder--skill--img:after {
+	--width: 128px;
+	--height: 128px;
+	z-index: -1;
+	background-image: url(../img/treeUI/tex_men_treeBoughtBreakthrough.png);
+}
+
+div.builder--skill.selected:not([data-cost-breakthrough="0"]) div.builder--skill--img:before {
+	z-index: 1;
+	background-image: url(../img/treeUI/tex_men_treeBoughtOverlay.png);
+}
+
+div.builder--skill.locked div.builder--skill--img:after {
+	--width: 50px;
+	--height: 50px;
+	z-index: 1;
+	background-image: url(../img/treeUI/tex_men_treeUnavailable.png);
 }
 
 div.builder--skill--img {
-	height: 128px;
-	min-height: 128px;
-	max-height: 128px;
+	height: 50px;
+	min-height: 50px;
+	max-height: 50px;
 }
 
 div.builder--skill--img > img {
-  width: 84px;
-  height: 128px;
+  width: 50px;
+  height: 50px;
 }
 
 div.builder--skill--card {
 	
 	visibility: hidden;
 	z-index: 2;
+	pointer-events: none;
 	
 	background-color: rgba(0, 0, 0, 0.8);
 	padding: var(--card-padding) 0.8rem;
@@ -195,7 +307,12 @@ div.card--cost_other {
 }
 
 div.builder--row {
-	display: flex;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	grid-template-rows: 1fr;
+	grid-column-gap: 0.1rem;
+	
+	
 	flex-direction: row;
 	flex-wrap: wrap;
 	align-content: normal;
@@ -203,6 +320,126 @@ div.builder--row {
 	align-items: normal;
 	max-width: 80%;
 	margin: auto;
+}
+
+#tree__quests_active,
+#tree__quests_passive {
+	grid-template-columns: 1fr;
+	grid-template-rows: 1fr;
+}
+
+#tree__quests_active div.builder--row,
+#tree__quests_passive div.builder--row {
+	grid-template-columns: 1fr;
+}
+
+#tree__quests_active .skill--group,
+#tree__quests_passive .skill--group {
+	flex-wrap: wrap;
+}
+
+/* GEAR */
+div.builder--tree--gear {
+	display: grid;
+	grid-template-columns: 64px 200px 64px;
+	grid-template-rows: 1fr;
+	grid-column-gap: 0px;
+	grid-row-gap: 0px;
+	
+	width: 328px;
+	margin: 0 auto;
+	
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+div.male-silhouette {
+	background-image: url(../img/slots/male.png);
+}
+
+div.female-silhouette {
+	background-image: url(../img/slots/female.png);
+}
+
+div.gear--left-rail {
+	grid-area: 1 / 1 / 2 / 2;
+}
+
+div.gear--right-rail {
+	grid-area: 1 / 3 / 2 / 4;
+}
+
+div.gear--bottom-rail {
+	grid-area: 2 / 1 / 3 / 4;
+}
+
+.gear--group {
+  display: flex;
+}
+
+.gear--info {
+  position: relative;
+  width: 64px;
+  text-align: center;
+  margin: 0 0.2rem 0 0.2rem;
+}
+
+.gear--image img {
+  position: relative;
+  left: 0;
+  top: 0;
+  width: 64px;
+}
+
+.gear--name {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.gear--info:hover .gear--name {
+  display: none;
+}
+
+.builder--quick-slots {
+	display: grid;
+	grid-template-columns: repeat(8, 1fr);
+	grid-template-rows: 1fr;
+	grid-column-gap: 0;
+	grid-row-gap: 0;
+
+	height: 86px;
+	width: fit-content;
+	margin: 1rem auto;
+	background-color: rgba(0,0,0,0.5);
+}
+
+.quick-slots {
+	width: 64px;
+	margin: 0 0.2rem;
+	background-image: url(../img/slots/blank_quickslot.png);
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+}
+
+@media screen and (width < 600px) {
+	.builder--quick-slots {
+		grid-template-columns: repeat(4, 1fr);
+		grid-template-rows: repeat(2, 1fr);
+		height: calc(86px * 2);
+	}
+}
+
+/* CONTEXT MENUS */
+.section.context {
+	display: block;
+	position: absolute;
+	z-index: 100;
+	background-color: rgba(0,0,0,0.8);
+	border: 1px solid white;
+	padding: 0.25rem;
+	margin: 0;
 }
 
 /* TOTALS */
@@ -305,17 +542,17 @@ div.section.tools {
 div.tools-btn {
 	margin: 0.25rem;
 	padding: 0.5rem 1rem;
-	background-image: url(../img/tex_men_buttonGenericNormal.png);
+	background-image: url(../img/btns/normal.png);
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 }
 
 div.tools-btn:hover {
-	background-image: url(../img/tex_men_buttonGenericHover.png);
+	background-image: url(../img/btns/hover.png);
 }
 
 div.tools-btn.active {
-	background-image: url(../img/tex_men_buttonGenericHover.png);
+	background-image: url(../img/btns/pressed.png);
 }
 
 /* FOOTER */

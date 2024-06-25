@@ -1,164 +1,12 @@
 <?php
 include("./lib/polyfill.php");
+include("./lib/generators.php");
 
 $dataFiles = array(
 	"skillTrees" => array( "file" => "./data/skillTrees.json"),
-	"skills" => array("file" => "./data/skills.json")
+	"skills" => array("file" => "./data/skills.json"),
+	"gear" => array("file" => "./data/gear.json")
 );
-
-function generateSkillTreeTabber($data) {
-	$out = "";
-	
-	foreach($data as $k => $v) {
-		if($v['img'] == "AUTO")
-			$v['img'] = genImgSkillTree($v['name']);
-		
-		$out .= '<div tabindex="0" class="skill_trees--opt" data-target="'.genSafeName($v['name']).'"><div class="skill_trees--icon"><img src="'.$v['img'].'" /></div><div class="skill_trees--name">'.$v['name'].'</div></div>';
-	}
-
-	return $out;
-}
-
-function generateSkillTrees($data) {
-	$out = "";
-	
-	foreach($data as $k => $v) {
-		$safeK = genSafeName($k);
-		$out .= '<div class="builder--tree" id="tree__'.$safeK.'"><div class="builder--tree--name">'.$k.'</div>';
-		
-		$skills = array();
-		
-		foreach($v as $skillIdx => $skillData) {
-			$tier = $skillData['tier'];
-			$slot = $skillData['slot'];
-			$row = $skillData['row'];
-			$name = $skillData['name'];
-			$img = isset($skillData['img']) ? $skillData['img'] : genImgSkill($name);
-			if($img == "AUTO")
-				$img = genImgSkill($name);
-			if(!str_contains($img, "."))
-				$img = genImgSkill($img);
-			
-			$costs = $skillData['costs'];
-			$costSilver = isset($costs['silver']) ? $costs['silver'] : 0;
-			$costMedal = isset($costs['medal']) ? $costs['medal'] : 0;
-			$costHealth = isset($costs['health']) ? $costs['health'] : 0;
-			$costMana = isset($costs['mana']) ? $costs['mana'] : 0;
-			$costStamina = isset($costs['stamina']) ? $costs['stamina'] : 0;
-			$costBreakthrough = isset($costs['breakthrough']) ? $costs['breakthrough'] : 0;
-			$costOther = isset($costs['other']) ? $costs['other'] : '';
-			$cooldown = $skillData['cooldown'];
-			$description = $skillData['description'];
-
-			if(!isset($skills[$tier])) $skills[$tier] = array();
-			if(!isset($skills[$tier][$row])) $skills[$tier][$row] = array();
-			if(!isset($skills[$tier][$row][$slot])) $skills[$tier][$row][$slot] = "";
-
-			$skills[$tier][$row][$slot] .= '<div tabindex="0" class="builder--skill" id="'.genSafeName($name). '"
-					data-full-name="'.$name.'"
-					data-cost-silver="'.$costSilver.'"
-					data-cost-mana="'.$costMana.'"
-					data-cost-stamina="'.$costStamina.'"
-					data-cost-breakthrough="'.$costBreakthrough.'"
-					data-cost-other="'.$costOther.'"
-					data-cooldown="'.$cooldown.'"
-					data-exclusive="'.
-						(isset($skillData['exclusive']) ? implode(", ", $skillData['exclusive']) : '').'"
-					data-requires="'.
-						(isset($skillData['requires']) ? implode(", ", $skillData['requires']) : ''). '"';
-					if(isset($skillData['bonuses'])) {
-						forEach($skillData['bonuses'] as $k => $v) {
-							$skills[$tier][$row][$slot] .= ' data-bonuses-' . $k . '="'.$v.'"';
-						}
-					}
-			$skills[$tier][$row][$slot] .= '
-					>
-				<div class="builder--skill--img"><img src="' . $img . '"></div>
-				<div class="builder--skill--card">
-					<div class="card--name">
-						<svg><text x="0" y="75%" textLength="250" lengthAdjust="spacingAndGlyphs">'.$name.'</text></svg>
-					</div>
-					<div class="card--costs">';
-					if($costBreakthrough > 0) {
-						$skills[$tier][$row][$slot] .= '<div class="card--cost__breakthrough">'.$costBreakthrough.'<img class="icon icon--breakthrough" src="./img/Breakthrough.webp" /></div>';
-					}
-					if($costSilver > 0) {
-						$skills[$tier][$row][$slot] .= '<div class="card--cost__silver">'.$costSilver.'<img class="icon icon--silver" src="./img/Silver.webp" /></div>';
-					}
-					if($costHealth > 0) {
-						$skills[$tier][$row][$slot] .= '<div class="card--cost__health">'.$costHealth.'<img class="icon icon--health" src="./img/Health.webp" /></div>';
-					}
-					if($costMana > 0) {
-						$skills[$tier][$row][$slot] .= '<div class="card--cost__mana">'.$costMana.'<img class="icon icon--mana" src="./img/Mana.webp" /></div>';
-					}
-					if($costMedal > 0) {
-						$skills[$tier][$row][$slot] .= '<div class="card--cost__medal">'.$costMedal.'<img class="icon icon--medal" src="./img/Medal.webp" /></div>';
-					}
-					if($costStamina > 0) {
-						$skills[$tier][$row][$slot] .= '<div class="card--cost_stamina">'.$costStamina.'<img class="icon icon--stamina" src="./img/Stamina.webp" /></div>';
-					}
-					if($costOther !== "") {
-						$skills[$tier][$row][$slot] .= '<div class="card--cost_other">'.$costOther.'</div>';
-					}
-					if($cooldown == -1) {
-						$skills[$tier][$row][$slot] .= '<div class="card--cost__cooldown passive">Passive</div>';
-					} else {
-						$skills[$tier][$row][$slot] .= '<div class="card--cost__cooldown">'.$cooldown.'s<img class="icon icon--cooldown" src="./img/Cooldown.webp" /></div>';
-					}
-			$skills[$tier][$row][$slot] .= '
-					</div>
-					<div class="card--description">'.$description.'</div>';
-					if(isset($skillData['requires'])) {
-						$skills[$tier][$row][$slot] .= '<div class="card--requires">Requires: ';
-						$skills[$tier][$row][$slot] .= implode(", ", $skillData['requires']);
-						$skills[$tier][$row][$slot] .= '</div>';
-					}
-					if(isset($skillData['exclusive'])) {
-						$skills[$tier][$row][$slot] .= '<div class="card--requires">Exclusive With: ';
-						$skills[$tier][$row][$slot] .= implode(", ", $skillData['exclusive']);
-						$skills[$tier][$row][$slot] .= '</div>';
-					}
-					if(isset($skillData['quest'])) {
-						$skills[$tier][$row][$slot] .= '<div class="card--requires">Quest: '.$skillData['quest'].'</div>';
-					}
-				
-			$skills[$tier][$row][$slot] .= '
-				</div>
-			</div>';
-		}
-		
-		$skills = array_reverse($skills, true);
-		foreach($skills as $rowIdx => $iRow) {
-			$out .= '<div class="builder--row ' . $rowIdx . '">';
-			
-			// $iRow = array_reverse($iRow, true);
-			foreach($iRow as $slotIdx => $iSlot) {
-				foreach($iSlot as $slotSpot => $slotData) {
-					$out .= $slotData;
-				}
-			}
-			
-			$out .= '</div>';
-		}
-		
-		$out .= '</div>';
-	}
-	
-	return $out;
-}
-
-function genImgSkillTree($name) {
-	return "./img/skillTree/" . genSafeName($name) . ".webp";
-}
-
-function genImgSkill($name) {
-	return "./img/skills/" . genSafeName($name, false) . ".webp";
-}
-
-function genSafeName($name, $lower = true) {
-	if($lower) $name = strtolower($name);
-	return str_replace(array(" "), "_", $name);
-}
 
 function formatDescription($desc) {
 	return str_replace(array("\n"), array("<br />"), $desc);
@@ -177,10 +25,59 @@ function formatDescription($desc) {
 	<div class="section builder">
 		<div class="builder--tabber">
 			<div class="builder--skill_trees">
+				<div tabindex="0" class="skill_trees--opt" data-target="gear">
+					<div class="skill_trees--icon">
+						<img src="./img/skillTree/gear.webp">
+					</div>
+					<div class="skill_trees--name">Gear</div>
+				</div>
 				<?PHP echo generateSkillTreeTabber(json_decode(file_get_contents($dataFiles['skillTrees']['file']), true)); ?>
 			</div>
-			<?PHP echo generateSkillTrees(json_decode(file_get_contents($dataFiles['skills']['file']), true)); ?>
 		</div>
+		<div class="builder--gear" id="tree__gear">
+			<div class="builder--tree--name col-all">Gear</div>
+			<div class="builder--tree--gear">
+				<div class="gear--left-rail">
+					<div class="gear--slot gear--primary" data-target="primary">
+						<img src="./img/slots/weapon.png">
+					</div>
+					<div class="gear--slot gear--offhand" data-target="offhand">
+						<img src="./img/slots/offhand.png">
+					</div>
+					<div class="gear--slot gear--ammo" data-target="ammo">
+						<img src="./img/slots/Ammo.png">
+					</div>
+				</div>
+				<div class="gear--right-rail">
+					<div class="gear--slot gear--head" data-target="head">
+						<img src="./img/slots/helm.png">
+					</div>
+					<div class="gear--slot gear--chest" data-target="chest">
+						<img src="./img/slots/armor.png">
+					</div>
+					<div class="gear--slot gear--back" data-target="back">
+						<img src="./img/slots/bag.png">
+					</div>
+					<div class="gear--slot gear--boots" data-target="boots">
+						<img src="./img/slots/boots.png">
+					</div>
+				</div>
+			</div>
+			<div class="gear--selectors">
+				<?PHP echo generateGearListings(json_decode(file_get_contents($dataFiles['gear']['file']), true)); ?>
+			</div>
+			<div class="builder--quick-slots">
+				<div class="quick-slots slot-1"></div>
+				<div class="quick-slots slot-2"></div>
+				<div class="quick-slots slot-3"></div>
+				<div class="quick-slots slot-4"></div>
+				<div class="quick-slots slot-5"></div>
+				<div class="quick-slots slot-6"></div>
+				<div class="quick-slots slot-7"></div>
+				<div class="quick-slots slot-8"></div>
+			</div>
+		</div>
+		<?PHP echo generateSkillTrees(json_decode(file_get_contents($dataFiles['skills']['file']), true)); ?>
 	</div>
 	<div class="section totals">
 		<div class="totals--header">Build Data</div>
@@ -190,9 +87,9 @@ function formatDescription($desc) {
 			<div class="total-skills__active">Active Skills: <span id="total-skills__active">0</span></div>
 		</div>
 		<div class="totals--costs">
-			<div class="costs__breakthrough">Breakthrough: <span id="costs__breakthrough">0</span><img class="icon icon--breakthrough" src="./img/Breakthrough.webp" /></div>
-			<div class="costs__silver">Silver: <span id="costs__silver">0</span><img class="icon icon--silver" src="./img/Silver.webp" /></div>
-			<div class="costs__medal">Medal: <span id="costs__medal">0</span><img class="icon icon--medal" src="./img/Medal.webp" /></div>
+			<div class="costs__breakthrough">Breakthrough: <span id="costs__breakthrough">0</span><img class="icon icon--breakthrough" src="./img/statIcons/Breakthrough.webp" /></div>
+			<div class="costs__silver">Silver: <span id="costs__silver">0</span><img class="icon icon--silver" src="./img/statIcons/Silver.webp" /></div>
+			<div class="costs__medal">Medal: <span id="costs__medal">0</span><img class="icon icon--medal" src="./img/statIcons/Medal.webp" /></div>
 			<div class="costs__other">Other Costs: <span id="costs__other">None</span></div>
 		</div>
 		<div class="totals--skill_bonuses">
@@ -201,10 +98,10 @@ function formatDescription($desc) {
 					<div class="row--header">Vitals</div>
 				</div>
 				<div class="totals--row-content">
-					<div class="skill-bonuses skill-bonuses__health">Health: <span id="skill-bonuses__health">0</span><img class="icon icon--health" src="./img/Health.webp" /></div>
-					<div class="skill-bonuses skill-bonuses__stamina">Stamina: <span id="skill-bonuses__stamina">0</span><img class="icon icon--stamina" src="./img/Stamina.webp" /></div>
-					<div class="skill-bonuses skill-bonuses__mana">Mana: <span id="skill-bonuses__mana">0</span><img class="icon icon--mana" src="./img/Mana.webp" /></div>
-					<div class="skill-bonuses skill-bonuses__mana_regen">Mana Regen: <span id="skill-bonuses__mana_regen">0</span><img class="icon icon--mana" src="./img/Mana.webp" /> / s</div>
+					<div class="skill-bonuses skill-bonuses__health">Health: <span id="skill-bonuses__health">0</span><img class="icon icon--health" src="./img/statIcons/Health.webp" /></div>
+					<div class="skill-bonuses skill-bonuses__stamina">Stamina: <span id="skill-bonuses__stamina">0</span><img class="icon icon--stamina" src="./img/statIcons/Stamina.webp" /></div>
+					<div class="skill-bonuses skill-bonuses__mana">Mana: <span id="skill-bonuses__mana">0</span><img class="icon icon--mana" src="./img/statIcons/Mana.webp" /></div>
+					<div class="skill-bonuses skill-bonuses__mana_regen">Mana Regen: <span id="skill-bonuses__mana_regen">0</span><img class="icon icon--mana" src="./img/statIcons/Mana.webp" /> / s</div>
 				</div>
 			</div>
 			<div class="totals--group--row">
@@ -271,6 +168,32 @@ function formatDescription($desc) {
 					<div class="skill-bonuses skill-bonuses__barrier">Barrier <span id="skill-bonuses__barrier">0</span></div>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div style="display: none;" class="section context skill">
+		<div class="context--header">Assign To Slot..</div>
+		<div class="context--content">
+			<div class="context--target" data-tar="slot-1">Slot 1</div>
+			<div class="context--target" data-tar="slot-2">Slot 2</div>
+			<div class="context--target" data-tar="slot-3">Slot 3</div>
+			<div class="context--target" data-tar="slot-4">Slot 4</div>
+			<div class="context--target" data-tar="slot-5">Slot 5</div>
+			<div class="context--target" data-tar="slot-6">Slot 6</div>
+			<div class="context--target" data-tar="slot-7">Slot 7</div>
+			<div class="context--target" data-tar="slot-8">Slot 8</div>
+		</div>
+	</div>
+	<div style="display: none;" class="section context item">
+		<div class="context--header">Assign To Slot..</div>
+		<div class="context--content">
+			<div class="context--target" data-tar="slot-1">Slot 1</div>
+			<div class="context--target" data-tar="slot-2">Slot 2</div>
+			<div class="context--target" data-tar="slot-3">Slot 3</div>
+			<div class="context--target" data-tar="slot-4">Slot 4</div>
+			<div class="context--target" data-tar="slot-5">Slot 5</div>
+			<div class="context--target" data-tar="slot-6">Slot 6</div>
+			<div class="context--target" data-tar="slot-7">Slot 7</div>
+			<div class="context--target" data-tar="slot-8">Slot 8</div>
 		</div>
 	</div>
 	<div class="section tools">

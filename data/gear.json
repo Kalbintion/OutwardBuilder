@@ -1,0 +1,101 @@
+{
+	"Head": [
+	
+	],
+	"Chest": [
+	
+	],
+	"Feet": [
+	
+	],
+	"Primary": [
+		{
+			"id": 2000010,
+			"name": "Iron Sword",
+			"img": "AUTO",
+			"class": "Swords",
+			"type": "1H",
+			"damage": {
+				"physical": 19
+			},
+			"impact": 15,
+			"attack_speed": 1.0,
+			"stamina_cost": 3.85,
+			"durability": 225,
+			"weight": 4.0
+		}, {
+			"id": 2020325,
+			"name": "Ancient Calygrey Mace",
+			"img": "AUTO",
+			"class": "Mace",
+			"type": "1H",
+			"damage": {
+				"physical": 34,
+				"lightning": 24
+			},
+			"impact": 51,
+			"attack_speed": 0.9,
+			"stamina_cost": 4.4,
+			"durability": 400,
+			"weight": 7.0
+		}, {
+			"id": 2150165,
+			"name": "Ancient Calygrey Staff",
+			"img": "AUTO",
+			"class": "Staff",
+			"type": "2H",
+			"damage": {
+				"physical": 30,
+				"lightning": 5
+			},
+			"impact": 45,
+			"attack_speed": 1.0,
+			"stamina_cost": 6.5,
+			"durability": 225,
+			"weight": 5.0
+		}, {
+			"id": 2100110,
+			"name": "Assassin Claymore",
+			"img": "AUTO",
+			"class": "Sword",
+			"type": "2H",
+			"damage": {
+				"physical": 24,
+				"decay": 8
+			},
+			"impact": 33,
+			"attack_speed": 1.0,
+			"stamina_cost": 6.6,
+			"durability": 200,
+			"weight": 4.0,
+			"effects": ["45% Slow Down", "33% Bleeding"]
+		}
+	
+	],
+	"Secondary": [
+		{
+			"id": 2300365,
+			"name": "Angler Shield",
+			"img": "AUTO",
+			"class": "Shield",
+			"type": "OH",
+			"damage": {
+				"physical": 55
+			},
+			"impact": 45,
+			"resists": {
+				"impact": 19
+			},
+			"attack_speed": 1.0,
+			"stamina_cost": 0,
+			"durability": 275,
+			"weight": 8.0,
+			"effects": ["60% Sapped"]
+		}
+	],
+	"Ammo": [
+	
+	],
+	"Backpack": [
+	]
+}

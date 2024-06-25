@@ -4,7 +4,7 @@ window.buildLoaders = {1: loadBuildV1, 2: loadBuildV2};
 window.hideZeroStats = true;
 
 function switchActiveSkillTree(name) {
-	$("div.builder--tree.active").removeClass("active");
+	$(".section.builder > div.active").removeClass("active");
 	
 	let treeName = $(name).data("target");
 	$("div#tree__" + treeName).addClass("active");
@@ -13,6 +13,18 @@ function switchActiveSkillTree(name) {
 function switchActiveTabber(newTabber) {
 	$(".skill_trees--opt.active").removeClass("active");
 	$(newTabber).addClass("active");
+}
+
+function switchActiveGear(newTabber) {
+	$(".gear--group").hide();
+	let tar = $(newTabber).data("target");
+	let tarEle = $("#gear__"+tar);
+	let isAlreadyShown = (tarEle.css('display') !== "none");
+	console.log(isAlreadyShown);
+	if(isAlreadyShown)
+		tarEle.hide();
+	else
+		tarEle.show();
 }
 
 function updateSkillStats() {
@@ -69,7 +81,6 @@ function updateSkillStats() {
 	$("#total-skills__passive").text(totalPassives);
 	$("#costs__breakthrough").text(totalBreakthrough);
 	$("#costs__silver").text(totalSilver);
-	console.log(totalOther);
 	$("#costs__other").text(totalOther.join(", "));
 	
 	// Setup text values for bonuses
@@ -165,7 +176,7 @@ function loadBuildV2(skillHash, skillData) {
 	console.log("v1 Build Data: " + buildData);
 
 	
-	// Good to load
+	// We're good to load
 	$(".builder--skill").each((k, v) => {
 		if(buildData.charAt(k) == "1")
 			$(v).trigger("click");
@@ -210,12 +221,67 @@ function initSkillRequired() {
 	skillRequires.each((k, v) => {
 		let skillNames = $(v).data('requires').split(', ');
 		skillNames.forEach((v2, k2) => {
+			v2 = genSafeName(v2);
 			let skillReqed = $("#" + v2);
 			if(!$(skillReqed).hasClass("selected")) {
-				$(v).toggleClass("requires");
+				$(v).addClass("requires");
+			} else {
+				$(v).removeClass("requires");
 			}
 		});
 	});
+}
+
+function cascadeRequireCheck(from, prevSelected) {
+	let requires = $("div.builder--skill[data-requires*=\"" + from + "\"]");
+	requires.each((k,v) => {
+		// Remove selection/require tags
+		let curSelected = $(v).hasClass("selected");
+		if($(v).hasClass("requires") && prevSelected) {
+			$(v).removeClass("requires");
+		} else {
+			$(v).addClass("requires");
+			$(v).removeClass("selected");
+		}
+		
+		let itemFullName = $(v).data("full-name");
+		cascadeRequireCheck(itemFullName, curSelected);
+	});
+}
+
+function cascadeExclusivesCheck(from, prevSelected) {
+	if(from !== "") {
+		let exclusives = from.split(", ");
+		exclusives.forEach((v,i) => {
+			if(prevSelected) {
+				$("#"+genSafeName(v)).addClass("locked");
+				$("#"+genSafeName(v)).removeClass("requires");
+			} else {
+				$("#"+genSafeName(v)).removeClass("locked");
+				$("#"+genSafeName(v)).removeClass("requires");
+			}
+		});
+	}
+}
+
+function mouseX(evt) {
+	if(evt.pageX) {
+		return evt.pageX;
+	} else if(evt.clientX) {
+		return evt.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+	} else {
+		return null;
+	}
+}
+
+function mouseY(evt) {
+	if(evt.pageY) {
+		return evt.pageY;
+	} else if(evt.clientY) {
+		return evt.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+	} else {
+		return null;
+	}
 }
 
 $(function() {
@@ -247,28 +313,38 @@ $(function() {
 		
 		$(this).toggleClass("selected");
 		
-		let isSelected = $(this).hasClass("selected");
-		let exclusive = $(this).data("exclusive");
-		if(exclusive !== "") {
-			let exclusives = exclusive.split(", ");
-			exclusives.forEach((v, i) => {
-				$("#"+genSafeName(v)).toggleClass("locked");
-			});
-		}
-		
 		let fullName = $(this).data("full-name");
-		let requires = $("div.builder--skill[data-requires*=\"" + fullName + "\"]");
-		requires.each((k, v) => {
-			if($(v).hasClass("requires") && isSelected) {
-				$(v).removeClass("requires");
-			} else {
-				$(v).addClass("requires")
-				$(v).removeClass("selected");
-			}
-		});
+		let isSelected = $(this).hasClass("selected");
+		cascadeRequireCheck(fullName, isSelected);
+		cascadeExclusivesCheck($(this).data("exclusive"), isSelected);
 		
 		updateSkillStats();
 		updateBuildURL();
+	});
+	$(".gear--slot").click(function() { switchActiveGear(this); });
+	$(".builder--skill:not([data-cooldown='-1']").on("contextmenu", function() {
+		let rMenu = $(".section.context.skill");
+		rMenu.css("top", mouseY(event) + "px");
+		rMenu.css("left",mouseX(event) + "px");
+		rMenu.data("name", $(this).data("name"));
+		$(".section.context.skill").show();
+		window.event.returnValue = false;
+	});
+	$(".gear--info").on("contextmenu", function() {
+		let rMenu = $(".section.context.item");
+		rMenu.css("top", mouseY(event) + "px");
+		rMenu.css("left", mouseX(event) + "px");
+		rMenu.data("id", $(this).data("id"));
+		$(".section.context.item").show();
+		window.event.returnValue = false;
+	});
+	$(".context--target").click(function() {
+		
+	});
+	
+	// Context menu hiding
+	$(document).bind("click", function() {
+		$(".section.context").hide();
 	});
 	
 	
