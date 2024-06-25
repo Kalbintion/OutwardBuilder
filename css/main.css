@@ -415,7 +415,22 @@ div.gear--bottom-rail {
 	background-color: rgba(0,0,0,0.5);
 }
 
+.gear--slot {
+	position: relative;
+}
+
+.gear--slot:hover:after {
+	position: absolute;
+	content: '';
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	box-shadow: inset 0 0 10px #FFF;
+}
+
 .quick-slots {
+	position: relative;
 	width: 64px;
 	margin: 0 0.2rem;
 	background-image: url(../img/slots/blank_quickslot.png);
@@ -429,6 +444,16 @@ div.gear--bottom-rail {
 		grid-template-rows: repeat(2, 1fr);
 		height: calc(86px * 2);
 	}
+}
+
+.quick-slots:hover:after {
+	position: absolute;
+	content: '';
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	box-shadow: inset 0 0 10px #FFF;
 }
 
 /* CONTEXT MENUS */
