@@ -148,26 +148,97 @@ function generateSkillTrees($data) {
 	return $out;
 }
 
-function generateGearListings($data) {
+function getGearListings($file, $cache) {
+	$sha512 = hash_file("sha512", $file, false);
+	
+	if(gearListingsUseCache($cache, $sha512))
+		return file_get_contents($cache);
+	else {
+		file_put_contents($cache . ".hash", hash_file("sha512", $file, false));
+		return generateGearListings(json_decode(file_get_contents($file), true), $cache);
+	}
+}
+
+function gearListingsUseCache($file, $sha512) {
+	if(!file_exists($file))	return false;
+	if(!file_exists($file.".hash")) return false;
+	
+	$readHash = file_get_contents($file . ".hash");
+	if($readHash == $sha512) return true;
+	return false;
+}
+
+function generateGearListings($data, $cache) {
 	$out = "";
 	
-	foreach($data as $slotName => $slotData) {
-		$out .= '<div style="display: none;" class="gear--group" id="gear__'.genSafeName($slotName).'">';
-		foreach($slotData as $idx => $itemInfo) {
-			$out .= '<div class="gear--info" data-id="'.$itemInfo['id'].'" data-name="'.$itemInfo['name'].'">';
-			
-			if(!isset($itemInfo['img']) || $itemInfo['img'] == "AUTO")
-				$itemInfo['img'] = genImgItem($itemInfo['id'], $itemInfo['name']);
-			
-			$out .= '<div class="gear--image"><img src="'.$itemInfo['img'].'"><div class="gear--name">'.$itemInfo['name'].'</div></div>';
-			$out .= '';
-			
-			$out .= '</div>';
+	$buckets = array(
+		"primary" => array(),
+		"secondary" => array(),
+		"ammo" => array(),
+		"head" => array(),
+		"chest" => array(),
+		"feet" => array(),
+		"backpack" => array(),
+		"food" => array(),
+		"other" => array()
+	);
+	
+	foreach($data as $key => $itemInfo) {
+		// Determine bucket to use
+		$bucket = "other";
+		switch ($itemInfo['Type']) {
+			case "Backpacks":
+				$bucket = "backpack"; break;
+			case "Food":
+				$bucket = "food"; break;
+			case "Weapon":
+				// Need to determine proper type as shields are weapons and not all weapons are primary
+				if($itemInfo['Stats']['Type'] == "Off-Handed")
+					$bucket = "secondary";
+				else if($itemInfo['Stats']['Type'] == "Ammunition")
+					$bucket = "ammo";
+				else if($itemInfo['Stats']['Type'] == "Crafting Station")
+					$bucket = "other";
+				else if($itemInfo['Stats']['Type'] == "Tent")
+					$bucket = "other";
+				else
+					$bucket = "primary";
+				break;
+			case "Chest":
+				$bucket = "chest"; break;
+			case "Legs":
+				$bucket = "feet"; break;
+			case "Head":
+				$bucket = "head"; break;
 		}
-		$out .= '</div>';
+		
+		if(!isset($itemInfo['Image']) || $itemInfo['Image'] == "AUTO")
+			$itemInfo['Image'] = genImgItem($itemInfo['ObjectID'], $itemInfo['Name']);
+		else
+			$itemInfo['Image'] = "./img/gear/" . $itemInfo['Image'];
+
+		$itemDatas = "";
+		
+		$itemOut = '<div class="gear--info" ' . $itemDatas . '>';
+		$itemOut .= '<div class="gear--image"><img src="'.$itemInfo['Image'].'"><div class="gear--name">'.$itemInfo['Name'].'</div></div>';
+		$itemOut .= '</div>';
+		
+		$buckets[$bucket][] = $itemOut;
 	}
 	
+	// Compile all the buckets
+	foreach($buckets as $key => $value) {
+		$out .= '<div style="display: none;" class="gear--group" id="gear__'.genSafeName($key).'">'.implode($value).'</div>';
+	}
+	
+	// Output to cache file
+	file_put_contents($cache, $out);
+	
 	return $out;
+}
+
+function makeGearDataTag($name, $val) {
+	return 'data-'.strtolower($name).'="'.$val.'"';
 }
 
 function genImgSkillTree($name) {
@@ -195,5 +266,13 @@ function genImgItem($id, $name) {
 function genSafeName($name, $lower = true) {
 	if($lower) $name = strtolower($name);
 	return str_replace(array(" ", ":"), array("_", ""), $name);
+}
+
+function getHyphenPath($obj, $path) {
+	if(gettype($obj) == "array") {
+		
+	} else {
+		return array("path" => $path, "value" => $obj);
+	}	
 }
 ?>

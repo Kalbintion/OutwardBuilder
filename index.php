@@ -5,7 +5,12 @@ include("./lib/generators.php");
 $dataFiles = array(
 	"skillTrees" => array( "file" => "./data/skillTrees.json"),
 	"skills" => array("file" => "./data/skills.json"),
-	"gear" => array("file" => "./data/gear.json")
+	"gear" => array("file" => "./data/gear.json"),
+	"items" => array("file" => "./data/items.json")
+);
+
+$cacheFiles = array(
+	"items" => array("file" => "./cache/items.cache")
 );
 
 function formatDescription($desc) {
@@ -41,7 +46,7 @@ function formatDescription($desc) {
 					<div class="gear--slot gear--primary" data-target="primary">
 						<img src="./img/slots/weapon.png">
 					</div>
-					<div class="gear--slot gear--offhand" data-target="offhand">
+					<div class="gear--slot gear--offhand" data-target="secondary">
 						<img src="./img/slots/offhand.png">
 					</div>
 					<div class="gear--slot gear--ammo" data-target="ammo">
@@ -55,16 +60,16 @@ function formatDescription($desc) {
 					<div class="gear--slot gear--chest" data-target="chest">
 						<img src="./img/slots/armor.png">
 					</div>
-					<div class="gear--slot gear--back" data-target="back">
+					<div class="gear--slot gear--back" data-target="backpack">
 						<img src="./img/slots/bag.png">
 					</div>
-					<div class="gear--slot gear--boots" data-target="boots">
+					<div class="gear--slot gear--boots" data-target="feet">
 						<img src="./img/slots/boots.png">
 					</div>
 				</div>
 			</div>
 			<div class="gear--selectors">
-				<?PHP echo generateGearListings(json_decode(file_get_contents($dataFiles['gear']['file']), true)); ?>
+				<?PHP echo getGearListings($dataFiles['items']['file'], $cacheFiles['items']['file']); ?>
 			</div>
 			<div class="builder--quick-slots">
 				<div class="quick-slots slot-1"></div>

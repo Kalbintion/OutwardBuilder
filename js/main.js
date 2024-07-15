@@ -16,10 +16,10 @@ function switchActiveTabber(newTabber) {
 }
 
 function switchActiveGear(newTabber) {
-	$(".gear--group").hide();
 	let tar = $(newTabber).data("target");
 	let tarEle = $("#gear__"+tar);
 	let isAlreadyShown = (tarEle.css('display') !== "none");
+	$(".gear--group").hide();
 	console.log(isAlreadyShown);
 	if(isAlreadyShown)
 		tarEle.hide();
