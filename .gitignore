@@ -1,2 +1,2 @@
 php_errors.log
-./cache/**
+cache/**
